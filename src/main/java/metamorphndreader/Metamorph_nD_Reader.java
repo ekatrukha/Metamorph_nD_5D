@@ -6,6 +6,7 @@ import ij.ImagePlus;
 import ij.io.OpenDialog;
 import ij.plugin.PlugIn;
 import ij.measure.Calibration;
+import ij.measure.ResultsTable;
 import net.imglib2.cache.img.CellLoader;
 import net.imglib2.cache.img.ReadOnlyCachedCellImgFactory;
 import net.imglib2.cache.img.ReadOnlyCachedCellImgOptions;
@@ -39,8 +40,26 @@ public class Metamorph_nD_Reader implements PlugIn {
 		}
 		VirtualMMReader vReader = new VirtualMMReader(sPath_, sFileNameFull_); 
 		
+		//error during initialization
+		if(!vReader.bInit)
+			return;
+		
 		DialogOptions dial = new DialogOptions();
-		dial.showDialog(vReader.nStagePosN);
+		
+		if(!dial.showDialog(vReader.nStagePosN))
+			return;
+		//just sho parsing results
+		if(dial.bJustRestuls)
+		{
+			ResultsTable SummaryRT = new ResultsTable();
+			SummaryRT.incrementCounter();
+    		SummaryRT.addValue("Positions", vReader.nStagePosN);
+    		SummaryRT.addValue("Wavelengths", vReader.nWaveN);
+    		SummaryRT.addValue("TimePoints", vReader.nTimePointsN);
+    		SummaryRT.addValue("Z-slices", vReader.nZStepsN);
+    		SummaryRT.show("Results");
+			return;
+		}
 		
 		vReader.nSelectedPosition = dial.nSelectedPosition;
 		IJ.log("Opened position #"+Integer.toString(vReader.nSelectedPosition));

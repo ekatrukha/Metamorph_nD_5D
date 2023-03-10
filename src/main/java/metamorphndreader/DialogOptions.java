@@ -13,6 +13,7 @@ public class DialogOptions {
 	public boolean bAdjustDim = false;
 	public String sPixelUnits = "";
 	public String sTimeUnits = "";
+	public boolean bJustRestuls = false;
 	
 	public boolean showDialog(final int nPosN)
 	{
@@ -33,6 +34,7 @@ public class DialogOptions {
 		gDial.addStringField("Voxel units:",Prefs.get("MMVirtualReader.sPixelUnits", "pixels"));
 		gDial.addNumericField("Time step: ", Prefs.get("MMVirtualReader.dTSize", 1.0), 2, 6," ");
 		gDial.addStringField("Time units:",Prefs.get("MMVirtualReader.sTimeUnits", "frames"));
+		gDial.addCheckbox("Do not open image, just show info in Results", Prefs.get("MMVirtualReader.bJustRestuls", false));
 		gDial.setResizable(false);
 		gDial.showDialog();
 		if (gDial.wasCanceled())
@@ -58,6 +60,9 @@ public class DialogOptions {
 			sTimeUnits = gDial.getNextString();
 			Prefs.set("MMVirtualReader.sTimeUnits", sTimeUnits);
 		}
+		
+		bJustRestuls = gDial.getNextBoolean();
+		Prefs.set("MMVirtualReader.bJustRestuls", bJustRestuls);		
 		return true;
 		
 	}

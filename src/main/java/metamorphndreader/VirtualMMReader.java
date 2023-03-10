@@ -1,8 +1,10 @@
 package metamorphndreader;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -15,7 +17,9 @@ import ij.process.ImageProcessor;
 public class VirtualMMReader {
 	String sFileNameFull_nD;
 	public String sFileNameShort;
+	public String sExtension;
 	String sPath;
+	public boolean bInit;
 	public int nWidth = 0;
 	public int nHeight = 0;
 	public int nStagePosN = 0;
@@ -32,10 +36,10 @@ public class VirtualMMReader {
 		sPath = new String(sPath_);
 		sFileNameFull_nD = new String(sFullFilename);
 		sFileNameShort = sFullFilename.substring(0,sFullFilename.length()-3);
-		analyzeNDFile();
+		bInit = analyzeNDFile();
 	}
 	
-	public void analyzeNDFile()
+	public boolean analyzeNDFile()
 	{
 		
 		
@@ -102,7 +106,31 @@ public class VirtualMMReader {
 		// analyze first file
 		
 		IJ.log("Analyzing TIF files...");
-		String oneFile =sFileNameShort+"_w1"+sWaveName.get(0)+"_s1_t1.TIF";
+		//let's get extension
+		
+		String sBeginning = sFileNameShort+"_w1"+sWaveName.get(0)+"_s1_t1.";
+		File dir = new File(sPath);
+		File[] files = dir.listFiles(new FilenameFilter() {
+		    public boolean accept(File dir, String name) {
+		        return name.startsWith(sBeginning);
+		    }
+		});
+		
+		if (files.length!=1)
+		{
+			IJ.log("Error reading TIF files, probably incompartible Metamorph version/output.");
+			return false;
+		}
+		else
+		{
+			String fullFirstFilename = files[0].getPath();
+			//IJ.log(fullFirstFilename);
+			sExtension = fullFirstFilename.substring(fullFirstFilename.length()-3,fullFirstFilename.length());
+			IJ.log("TIF extension is "+sExtension);
+		}
+	
+		
+		String oneFile =sFileNameShort+"_w1"+sWaveName.get(0)+"_s1_t1."+sExtension;
 		
 		FileInfo[] info;
 		TiffDecoder td = new TiffDecoder(sPath, oneFile);
@@ -112,12 +140,13 @@ public class VirtualMMReader {
 			String msg = e.getMessage();
 			if (msg==null||msg.equals("")) msg = ""+e;
 			IJ.error("TiffDecoder", msg);
-			return;
+			return false;
 		}
 		fi_in = info;
 		nWidth = fi_in[0].width;
 		nHeight = fi_in[0].height;
 		IJ.log("...done");
+		return true;
 	}
 	public ImageProcessor getOneProcessor(int nZslice, int nTimeP, int nWave)
 	{
@@ -126,7 +155,7 @@ public class VirtualMMReader {
 	
 	public ImageProcessor getOneProcessor(int nZslice, int nTimeP, int nWave, int nPos)
 	{
-		String filename = sFileNameShort+"_w"+Integer.toString(nWave+1)+sWaveName.get(nWave)+"_s"+Integer.toString(nPos)+"_t"+Integer.toString(nTimeP+1)+".TIF";
+		String filename = sFileNameShort+"_w"+Integer.toString(nWave+1)+sWaveName.get(nWave)+"_s"+Integer.toString(nPos)+"_t"+Integer.toString(nTimeP+1)+"."+sExtension;
 		FileInfo fi = (FileInfo)fi_in[nZslice].clone();
 		
 		fi.fileName =filename;
