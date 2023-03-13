@@ -14,7 +14,7 @@
 
 	<groupId>sc.fiji</groupId>        
 	<artifactId>Metamorph_nD_5D</artifactId> 
-	<version>0.0.2</version>
+	<version>0.0.3-SNAPSHOT</version>
 
 	<name>Metamorph_nD_5D</name>                                                  
 	<description>FIJI plugin reading metamorph 5D files using virtual hyperstack</description> 

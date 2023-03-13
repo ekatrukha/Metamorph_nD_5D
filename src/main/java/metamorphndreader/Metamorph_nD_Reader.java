@@ -48,7 +48,7 @@ public class Metamorph_nD_Reader implements PlugIn {
 		
 		if(!dial.showDialog(vReader.nStagePosN))
 			return;
-		//just sho parsing results
+		//just show parsing results
 		if(dial.bJustRestuls)
 		{
 			ResultsTable SummaryRT = new ResultsTable();
@@ -61,7 +61,8 @@ public class Metamorph_nD_Reader implements PlugIn {
 			return;
 		}
 		
-		vReader.nSelectedPosition = dial.nSelectedPosition;
+		vReader.initReader(dial.nSelectedPosition);
+		//vReader.nSelectedPosition = dial.nSelectedPosition;
 		IJ.log("Opened position #"+Integer.toString(vReader.nSelectedPosition));
 		final long[] dimensions = vReader.getDimensions();
 

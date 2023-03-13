@@ -103,12 +103,17 @@ public class VirtualMMReader {
 			// TODO Auto-generated catch block
 			IJ.log(e.getMessage());
 		}
+
+		return true;
+	}
+	public boolean initReader(final int nPosOpen)
+	{
 		// analyze first file
 		
 		IJ.log("Analyzing TIF files...");
 		//let's get extension
 		
-		String sBeginning = sFileNameShort+"_w1"+sWaveName.get(0)+"_s1_t1.";
+		String sBeginning = sFileNameShort+"_w1"+sWaveName.get(0)+"_s"+Integer.toString(nPosOpen)+"_t1.";
 		File dir = new File(sPath);
 		File[] files = dir.listFiles(new FilenameFilter() {
 		    public boolean accept(File dir, String name) {
@@ -118,7 +123,7 @@ public class VirtualMMReader {
 		
 		if (files.length!=1)
 		{
-			IJ.log("Error reading TIF files, probably incompartible Metamorph version/output.");
+			IJ.log("Error reading TIF files, cannot find "+sBeginning );
 			return false;
 		}
 		else
@@ -130,7 +135,7 @@ public class VirtualMMReader {
 		}
 	
 		
-		String oneFile =sFileNameShort+"_w1"+sWaveName.get(0)+"_s1_t1."+sExtension;
+		String oneFile =sFileNameShort+"_w1"+sWaveName.get(0)+"_s"+Integer.toString(nPosOpen)+"_t1."+sExtension;
 		
 		FileInfo[] info;
 		TiffDecoder td = new TiffDecoder(sPath, oneFile);
@@ -145,6 +150,7 @@ public class VirtualMMReader {
 		fi_in = info;
 		nWidth = fi_in[0].width;
 		nHeight = fi_in[0].height;
+		nSelectedPosition = nPosOpen;
 		IJ.log("...done");
 		return true;
 	}
