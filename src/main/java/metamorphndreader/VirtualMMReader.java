@@ -147,7 +147,21 @@ public class VirtualMMReader {
 			IJ.error("TiffDecoder", msg);
 			return false;
 		}
-		fi_in = info;
+		FileInfo fi = info[0];
+		int n = fi.nImages;
+		if (info.length==1 && n>1) {
+			fi_in = new FileInfo[n];
+			long size = fi.width*fi.height*fi.getBytesPerPixel();
+			for (int i=0; i<n; i++) {
+				fi_in[i] = (FileInfo)fi.clone();
+				fi_in[i].nImages = 1;
+				fi_in[i].longOffset = fi.getOffset() + i*(size + fi.gapBetweenImages);
+			}
+		}
+		else
+		{
+			fi_in = info;
+		}
 		nWidth = fi_in[0].width;
 		nHeight = fi_in[0].height;
 		nSelectedPosition = nPosOpen;

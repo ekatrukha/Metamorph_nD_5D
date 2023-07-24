@@ -29,6 +29,8 @@ You can read a bit more about it [here](https://forum.image.sc/t/speeding-up-met
 The plugin is based on examples shown at these [one](https://forum.image.sc/t/open-part-of-tif-stack/3166), [two](https://forum.image.sc/t/wrap-imageplus-virtualstack-into-imglib2/4154) discussion topics at image.sc forum.
 
 ### Updates history
+#### 0.0.3
+Fixed opening error if files are stored as .STK
 #### 0.0.2
 Added an option to show info only in Results, without loading images.
 #### 0.0.1
