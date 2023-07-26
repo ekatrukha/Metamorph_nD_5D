@@ -19,7 +19,7 @@ The following dialog should appear:
 - **"Do not open image, just show info in Results"** will do just that, show Results Table with dataset parameters.  
 
 The plugin is scriptable using ImageJ macro (use Recorder to see parameters), for example:  
-*run("Metamorph 5D reader 0.0.2", "open=/home/eugene/testing.nd load=[Position 1] max=10");*
+*run("Metamorph 5D reader X.X.X", "open=/home/eugene/testing.nd load=[Position 1] max=10");*
 
 ### Motivation 
 
@@ -29,6 +29,8 @@ You can read a bit more about it [here](https://forum.image.sc/t/speeding-up-met
 The plugin is based on examples shown at these [one](https://forum.image.sc/t/open-part-of-tif-stack/3166), [two](https://forum.image.sc/t/wrap-imageplus-virtualstack-into-imglib2/4154) discussion topics at image.sc forum.
 
 ### Updates history
+#### 0.0.4
+Fixed error for TIF/STK shift for different wavelengths. It caused horizontal image shift in some wavelength/z-stacks.
 #### 0.0.3
 Fixed opening error if files are stored as .STK
 #### 0.0.2
