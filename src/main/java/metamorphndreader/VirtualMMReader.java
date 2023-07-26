@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import ij.IJ;
+import ij.ImagePlus;
 import ij.io.FileInfo;
 import ij.io.FileOpener;
 import ij.io.TiffDecoder;
@@ -27,7 +28,8 @@ public class VirtualMMReader {
 	public int nZStepsN = 1;
 	public int nTimePointsN = 0;
 	ArrayList <String> sWaveName;
-	FileInfo [] fi_in = null;
+	//FileInfo [] fi_in = null;
+	ArrayList<FileInfo []> tifFileFIwL = null;
 	public int nSelectedPosition = 0;
 	
 	public VirtualMMReader(String sPath_, String sFullFilename)
@@ -108,12 +110,35 @@ public class VirtualMMReader {
 	}
 	public boolean initReader(final int nPosOpen)
 	{
+		FileInfo[] fi_out = null;
+		tifFileFIwL = new ArrayList<FileInfo []>();
+		for(int i=0;i<sWaveName.size();i++)
+		{
+			fi_out = initWavelength(nPosOpen,i);
+			if(fi_out==null)
+			{
+				return false;
+			}
+			else
+			{
+				tifFileFIwL.add(fi_out);
+			}
+			
+		}
+		return true;
+	}
+	
+	FileInfo [] initWavelength(final int nPosOpen, final int nWavelength)
+	//public boolean initReader(final int nPosOpen)
+	{
+		
+		FileInfo[] fi_out = null;
 		// analyze first file
 		
 		IJ.log("Analyzing TIF files...");
 		//let's get extension
 		
-		String sBeginning = sFileNameShort+"_w1"+sWaveName.get(0)+"_s"+Integer.toString(nPosOpen)+"_t1.";
+		String sBeginning = sFileNameShort+"_w"+Integer.toString(nWavelength+1)+sWaveName.get(nWavelength)+"_s"+Integer.toString(nPosOpen)+"_t1.";
 		File dir = new File(sPath);
 		File[] files = dir.listFiles(new FilenameFilter() {
 		    public boolean accept(File dir, String name) {
@@ -124,7 +149,7 @@ public class VirtualMMReader {
 		if (files.length!=1)
 		{
 			IJ.log("Error reading TIF files, cannot find "+sBeginning );
-			return false;
+			return null;
 		}
 		else
 		{
@@ -135,7 +160,7 @@ public class VirtualMMReader {
 		}
 	
 		
-		String oneFile =sFileNameShort+"_w1"+sWaveName.get(0)+"_s"+Integer.toString(nPosOpen)+"_t1."+sExtension;
+		String oneFile =sFileNameShort+"_w"+Integer.toString(nWavelength+1)+sWaveName.get(nWavelength)+"_s"+Integer.toString(nPosOpen)+"_t1."+sExtension;
 		
 		FileInfo[] info;
 		TiffDecoder td = new TiffDecoder(sPath, oneFile);
@@ -145,28 +170,28 @@ public class VirtualMMReader {
 			String msg = e.getMessage();
 			if (msg==null||msg.equals("")) msg = ""+e;
 			IJ.error("TiffDecoder", msg);
-			return false;
+			return null;
 		}
 		FileInfo fi = info[0];
 		int n = fi.nImages;
 		if (info.length==1 && n>1) {
-			fi_in = new FileInfo[n];
+			fi_out = new FileInfo[n];
 			long size = fi.width*fi.height*fi.getBytesPerPixel();
 			for (int i=0; i<n; i++) {
-				fi_in[i] = (FileInfo)fi.clone();
-				fi_in[i].nImages = 1;
-				fi_in[i].longOffset = fi.getOffset() + i*(size + fi.gapBetweenImages);
+				fi_out[i] = (FileInfo)fi.clone();
+				fi_out[i].nImages = 1;
+				fi_out[i].longOffset = fi.getOffset() + i*(size + fi.gapBetweenImages);
 			}
 		}
 		else
 		{
-			fi_in = info;
+			fi_out = info;
 		}
-		nWidth = fi_in[0].width;
-		nHeight = fi_in[0].height;
+		nWidth = fi_out[0].width;
+		nHeight = fi_out[0].height;
 		nSelectedPosition = nPosOpen;
 		IJ.log("...done");
-		return true;
+		return fi_out;
 	}
 	public ImageProcessor getOneProcessor(int nZslice, int nTimeP, int nWave)
 	{
@@ -176,7 +201,7 @@ public class VirtualMMReader {
 	public ImageProcessor getOneProcessor(int nZslice, int nTimeP, int nWave, int nPos)
 	{
 		String filename = sFileNameShort+"_w"+Integer.toString(nWave+1)+sWaveName.get(nWave)+"_s"+Integer.toString(nPos)+"_t"+Integer.toString(nTimeP+1)+"."+sExtension;
-		FileInfo fi = (FileInfo)fi_in[nZslice].clone();
+		FileInfo fi = (FileInfo)tifFileFIwL.get(nWave)[nZslice].clone();
 		
 		fi.fileName =filename;
 		//long size = fi.width*fi.height*fi.getBytesPerPixel();
@@ -186,7 +211,13 @@ public class VirtualMMReader {
 		FileOpener fo = new FileOpener(fi);
 		//ImagePlus ip = fo.open(false);
 		//ip.show();
-		return fo.open(false).getProcessor(); 
+		ImagePlus imp = null;
+		imp = fo.openImage();
+		if (imp!=null)
+			return imp.getProcessor();
+		else
+			return null;
+		//return fo.open(false).getProcessor(); 
 	}
 	public long [] getDimensions()
 	{
